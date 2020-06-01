@@ -3,11 +3,17 @@ let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
+let mongoose = require('mongoose');
 
 let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
 
 let app = express();
+
+let mongoDB = 'mongodb+srv://eneck:LocalLibrary1@cluster0-9trdp.mongodb.net/local_library?retryWrites=true&w=majority';
+mongoose.connect(mongoDB, {useNewUrlParser: true});
+let db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
