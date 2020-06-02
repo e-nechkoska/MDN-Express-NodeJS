@@ -8,7 +8,7 @@ let author_detail = function (req, res) {
   res.send('NOT IMPLEMENTED: Author detail: ' + req.params.id);
 };
 
-let authro_create_get = function (req, res) {
+let author_create_get = function (req, res) {
   res.send('NOT IMPLEMENTED: Author create GET');
 };
 
@@ -35,7 +35,7 @@ let author_update_post = function (req, res) {
 module.exports = {
   author_list,
   author_detail,
-  authro_create_get,
+  author_create_get,
   author_create_post,
   author_delete_get,
   author_delete_post,
