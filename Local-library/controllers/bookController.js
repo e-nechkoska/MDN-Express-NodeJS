@@ -39,8 +39,29 @@ let book_list = function(req, res, next) {
   });
 };
 
-let book_detail = function(req, res) {
-  res.send('NOT IMPLEMENTED: Book detail: ' + req.params.id);
+let book_detail = function(req, res, next) {
+  async.parallel({
+    book: function(callback) {
+      Book.findById(req.params.id)
+      .populate('author')
+      .populate('genre')
+      .exec(callback)
+    },
+    book_instance: function(callback) {
+      BookInstance.find({'book': req.params.id})
+      .exec(callback);
+    },
+  }, function(err, results) {
+    if(err) {
+      return next(err);
+    }
+    if(results.book == null) {
+      let err = new Error('Book not found');
+      err.status = 404;
+      return next(err);
+    }
+    res.render('book_detail', {title: results.book.title, book: results.book, book_instances: results.book_instance});
+  })
 };
 
 let book_create_get = function(req, res) {
