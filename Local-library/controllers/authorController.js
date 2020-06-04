@@ -1,7 +1,15 @@
 let Author = require('../models/author');
 
-let author_list = function (req, res) {
-  res.send('NOT IMPLEMENTED: Author list');
+let author_list = function (req, res, next) {
+  Author.find()
+  .populate('author')
+  .sort([['family_name', 'ascending']])
+  .exec(function (err, list_authors) {
+    if(err) {
+      return next(err);
+    }
+    res.render('author_list', {title: 'Auhtor List', author_list: list_authors});
+  });
 };
 
 let author_detail = function (req, res) {
