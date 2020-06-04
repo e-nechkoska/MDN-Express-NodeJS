@@ -1,35 +1,42 @@
 let Book = require('../models/book');
 let Author = require('../models/author');
 let Genre = require('../models/genre');
-let BookInstance = require('../model/bookinstance');
+let BookInstance = require('../models/bookinstance');
 
 let async = require('async');
 
-let index = function(req, res) {
+let index = function(req, res) {   
+    
   async.parallel({
-    book_count: function(callback) {
-      Book.countDocuments({}, callback);
-    },
-    book_instance_count: function(callback) {
-      BookInstance.countDocuments({}, callback);
-    },
-    book_instance_available_count: function(callback) {
-      BookInstance.countDocuments({status: 'Available'}, callback);
-    },
-    author_count: function(callback) {
-      Author.countDocuments({}, callback);
-    },
-    genre_count: function(callback) {
-      Genre.countDocuments({}, callback);
-    }
+      book_count: function(callback) {
+          Book.countDocuments({}, callback); 
+      },
+      book_instance_count: function(callback) {
+          BookInstance.countDocuments({}, callback);
+      },
+      book_instance_available_count: function(callback) {
+          BookInstance.countDocuments({status:'Available'}, callback);
+      },
+      author_count: function(callback) {
+          Author.countDocuments({}, callback);
+      },
+      genre_count: function(callback) {
+          Genre.countDocuments({}, callback);
+      }
   }, function(err, results) {
-    res.render('index', {title: 'Local Library Home', error: err, data: results});
-  }
-  );
+      res.render('index', { title: 'Local Library Home', error: err, data: results });
+  });
 };
 
-let book_list = function(req, res) {
-  res.send('NOT IMPLEMENTED: Book list');
+let book_list = function(req, res, next) {
+  Book.find({}, 'title author')
+  .populate('author')
+  .exec(function (err, list_books) {
+    if (err) {
+      return next(err)
+    }
+    res.render('book_list', {title: 'Book List', book_list: list_books});
+  });
 };
 
 let book_detail = function(req, res) {
