@@ -35,6 +35,13 @@ let book_list = function(req, res, next) {
     if (err) {
       return next(err)
     }
+
+    list_books.sort(function(a, b) {
+      let textA = a.title.toUpperCase();
+      let textB = b.title.toUpperCase();
+      return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    });
+
     res.render('book_list', {title: 'Book List', book_list: list_books});
   });
 };
