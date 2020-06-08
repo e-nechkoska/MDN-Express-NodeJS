@@ -61,7 +61,7 @@ let author_create_post = [
     const errors = validationResult(req);
 
     if(!errors.isEmpty()) {
-      res.render('author_form', { title: 'Create Author', author: req.body, errors: console.errors.array() });
+      res.render('author_form', { title: 'Create Author', author: req.body, errors: errors.array() });
       return;
     }
     else {
@@ -79,8 +79,6 @@ let author_create_post = [
       });
     }
   }
-
-
 ];
 
 let author_delete_get = function (req, res) {
