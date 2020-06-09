@@ -13,7 +13,9 @@ let author_list = function (req, res, next) {
     if(err) {
       return next(err);
     }
-    res.render('author_list', {title: 'Author List', author_list: list_authors});
+    res.render('author_list', {
+      title: 'Author List', 
+      author_list: list_authors});
   });
 };
 
@@ -36,7 +38,10 @@ let author_detail = function (req, res, next) {
       err.status = 404;
       return next(err);
     }
-    res.render('author_detail', {title: 'Author Detail', author: results.author, author_books: results.author_books});
+    res.render('author_detail', {
+      title: 'Author Detail', 
+      author: results.author, 
+      author_books: results.author_books});
   });
 };
 
@@ -45,12 +50,27 @@ let author_create_get = function (req, res) {
 };
 
 let author_create_post = [
-  body('first_name').isLength({ min: 1 }).trim().withMessage('First name must be specified.')
-  .isAlphanumeric().withMessage('First name has non-alphanumeric characters.'),
-  body('family_name').isLength({ min: 1 }).trim().withMessage('Family name must be specified.')
-  .isAlphanumeric().withMessage('Family name has non-alphanumeric characters.'),
-  body('date_of_birth', 'Invalid date of birth').optional({ checkFalsy: true }).isISO8601(),
-  body('date_of_death', 'Invalid date of death').optional({ checkFalsy: true }).isISO8601(),
+  body('first_name')
+  .isLength({ min: 1 })
+  .trim()
+  .withMessage('First name must be specified.')
+  .isAlphanumeric()
+  .withMessage('First name has non-alphanumeric characters.'),
+
+  body('family_name')
+  .isLength({ min: 1 })
+  .trim()
+  .withMessage('Family name must be specified.')
+  .isAlphanumeric()
+  .withMessage('Family name has non-alphanumeric characters.'),
+
+  body('date_of_birth', 'Invalid date of birth')
+  .optional({ checkFalsy: true })
+  .isISO8601(),
+
+  body('date_of_death', 'Invalid date of death')
+  .optional({ checkFalsy: true })
+  .isISO8601(),
 
   sanitizeBody('first_name').escape(),
   sanitizeBody('family_name').escape(),
@@ -61,7 +81,10 @@ let author_create_post = [
     const errors = validationResult(req);
 
     if(!errors.isEmpty()) {
-      res.render('author_form', { title: 'Create Author', author: req.body, errors: errors.array() });
+      res.render('author_form', { 
+        title: 'Create Author', 
+        author: req.body, 
+        errors: errors.array() });
       return;
     }
     else {
@@ -81,12 +104,58 @@ let author_create_post = [
   }
 ];
 
-let author_delete_get = function (req, res) {
-  res.send('NOT IMPLEMENTED: Author delete GET');
+let author_delete_get = function (req, res, next) {
+ async.parallel({
+   author: function (callback) {
+     Author.findById(req.params.id).exec(callback)
+   },
+   authors_books: function(callback) {
+     Book.find({'author': req.params.id}).exec(callback)
+   },
+ }, function (err, results) {
+  if(err) {
+    return next(err);
+  }
+  if(results.author == null) {
+    res.redirect('/catalog/authors');
+  }
+  res.render('author_delete', {
+    title: 'Delete Author',
+    author: results.author,
+    author_books: results.authors_books
+  });
+ });
 };
 
-let author_delete_post = function (req, res) {
-  res.send('NOT IMPLEMENTED: Author delete POST');
+let author_delete_post = function (req, res, next) {
+  async.parallel({
+    author: function (callback) {
+      Author.findById(req.body.authorid).exec(callback)
+    },
+    authors_books: function (callback) {
+      Book.find({'author' : req.body.authorid}).exec(callback)
+    },
+  }, function (err, results) {
+    if(err) {
+      return next(err);
+    }
+    if(results.authors_books.length > 0) {
+      res.render('author_delete', {
+        title: 'Delete Author',
+        author: results.author,
+        author_books: results.authors_books
+      });
+      return;
+    }
+    else {
+      Author.findByIdAndRemove(req.body.authorid, function deleteAuthor(err) {
+        if(err) {
+          return next(err);
+        }
+        res.redirect('/catalog/authors');
+      });
+    }
+  });
 };
 
 let author_update_get = function (req, res) {
