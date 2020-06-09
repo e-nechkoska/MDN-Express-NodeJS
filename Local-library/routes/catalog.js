@@ -38,7 +38,7 @@ router.get('/genre/:id', genre_controller.genre_detail);
 router.get('/genres', genre_controller.genre_list);
 
 // BOOKINSTANCE ROUTES
-router.get('/bookinstance/create', book_instance_controller.bookinstance_create_post);
+router.get('/bookinstance/create', book_instance_controller.bookinstance_create_get);
 router.post('/bookinstance/create', book_instance_controller.bookinstance_create_post);
 router.get('/bookinstance/:id/delete', book_instance_controller.bookinstance_delete_get);
 router.post('/bookinstance/:id/delete', book_instance_controller.bookinstance_delete_post);
