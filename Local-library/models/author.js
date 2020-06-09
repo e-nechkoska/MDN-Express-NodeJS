@@ -31,7 +31,15 @@ AuthorSchema.virtual("name").get(function () {
 });
 
 AuthorSchema.virtual("lifespan").get(function () {
-  return this.date_of_death.getYear() - this.date_of_birth.getYear();
+  if(!this.date_of_birth && this.date_of_death) {
+    return this.date_of_death.getYear();
+  } else if(this.date_of_birth && !this.date_of_death) {
+    return this.date_of_birth.getYear();
+  } else if(!this.date_of_birth && !this.date_of_death) {
+    return '';
+  } else {
+    return this.date_of_death.getYear() - this.date_of_birth.getYear();
+  }
 });
 
 AuthorSchema.virtual("date_of_birth_formatted").get(function () {
