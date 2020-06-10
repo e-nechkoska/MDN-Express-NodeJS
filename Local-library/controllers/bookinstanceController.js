@@ -151,9 +151,15 @@ let bookinstance_delete_get = function(req, res, next) {
   // });
 };
 
-let bookinstance_delete_post = function(req, res) {
-  res.send('NOT IMPLEMENTED: BookInstance delete POST');
-};
+let bookinstance_delete_post = function(req, res, next) {
+  
+  BookInstance.findByIdAndRemove(req.body.bookinstanceid, function deleteBookinstance(err) {
+    if(err) {
+      return next(err);
+    }
+    res.redirect('/catalog/bookinstances');
+  });
+};  
 
 let bookinstance_update_get = function(req, res) {
   res.send('NOT IMPLEMENTED: BookInstance update GET');
