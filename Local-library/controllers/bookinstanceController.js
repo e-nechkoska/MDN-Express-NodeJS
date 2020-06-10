@@ -1,6 +1,8 @@
 let BookInstance = require('../models/bookinstance');
 let Book = require('../models/book');
 
+let async = require('async');
+
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
 
@@ -89,8 +91,64 @@ let bookinstance_create_post = [
   }
 ];
 
-let bookinstance_delete_get = function(req, res) {
-  res.send('NOT IMPLEMENTED: BookInstance delete GET');
+let bookinstance_delete_get = function(req, res, next) {
+
+  // 1
+  // try {
+  //   const bookInstance = await BookInstance.findById(req.params.id).exec();
+  //   if(bookInstance == null) {
+  //     res.redirect('/catalog/bookinstances');
+  //   }
+  //   res.render('bookinstance_delete', {
+  //     title: 'Delete BookInstance',
+  //     bookinstance: bookInstance
+  //   });
+  // } catch(error) {
+  //   next(error)
+  // }
+
+  // 2
+  BookInstance.findById(req.params.id).exec().then(bookInstance => {
+    if(bookInstance == null) {
+      res.redirect('/catalog/bookinstances');
+    }
+    res.render('bookinstance_delete', {
+      title: 'Delete BookInstance',
+      bookinstance: bookInstance
+    });
+  }).catch(error => next(error));
+  
+  // 3
+  // Promise.all([
+  //   BookInstance.findById(req.params.id).exec()
+  // ]).then(results => {
+  //   const bookInstance = results[0];
+  //   if(bookInstance == null) {
+  //     res.redirect('/catalog/bookinstances');
+  //   }
+  //   res.render('bookinstance_delete', {
+  //     title: 'Delete BookInstance',
+  //     bookinstance: bookInstance
+  //   });
+  // }).catch(error => next(error));
+
+  // 4 :(
+  // async.parallel({
+  //   bookinstance: function(callback) {
+  //     return BookInstance.findById(req.params.id).exec(callback);
+  //   },
+  // }, function(err, results) {
+  //   if(err) {
+  //     return next(err);
+  //   }
+  //   if(results.bookinstance == null) {
+  //     res.redirect('/catalog/bookinstances');
+  //   }
+  //   res.render('bookinstance_delete', {
+  //     title: 'Delete BookInstance',
+  //     bookinstance: results.bookinstance
+  //   });
+  // });
 };
 
 let bookinstance_delete_post = function(req, res) {
