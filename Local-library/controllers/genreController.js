@@ -130,13 +130,43 @@ let genre_delete_post = function(req, res, next) {
   });
 };
 
-let genre_update_get = function(req, res) {
-  res.send('NOT IMPLEMENTED: Genre update GET');
-};
+let genre_update_get = function(req, res, next) {
+  Genre.findById(req.params.id).exec().then(genre => {
+    if(genre == null) {
+      let error = new Error('Genre not found');
+      error.status = 404;
+      return next(error);
+    }
 
-let genre_update_post = function(req, res) {
-  res.send('NOT IMPLEMENTED: Genre update POST');
-};
+    const templateData = {
+      title: 'Update Genre',
+      genre: genre
+   };
+
+    res.render('genre_form', templateData)
+  }).catch(err => next(err));
+}
+
+let genre_update_post = [
+  validator.body('name', 'Genre name must not be empty').trim().isLength({min: 1}),
+  validator.sanitizeBody('name').escape(),
+
+  (req, res, next) => {
+    const errors = validator.validationResult(req);
+    let genre = new Genre({ 
+      name: req.body.name,
+      _id: req.params.id
+    });
+
+    if(!errors.isEmpty()) {
+      res.render('genre_form', { title: 'Update Genre', genre: genre, errors: errors.array() });
+    } else {
+      Genre.findByIdAndUpdate(req.params.id, genre).exec().then(updatedGenre => {
+        res.redirect(updatedGenre.url);
+      }).catch(error => next(error));
+    }
+  }
+];
 
 module.exports = {
   genre_list,
