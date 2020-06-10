@@ -6,6 +6,8 @@ let async = require('async');
 const { body, validationResult } = require('express-validator/check');
 const { sanitizeBody } = require('express-validator/filter');
 
+const statuses = require('../models/statuses');
+
 let bookinstance_list = function(req, res, next) {
   BookInstance.find()
   .populate('book')
@@ -34,6 +36,8 @@ let bookinstance_detail = function(req, res, next) {
 };
 
 let bookinstance_create_get = function(req, res, next) {
+  
+
   Book.find({}, 'title')
   .exec(function (err, books) {
     if(err) {
@@ -41,7 +45,8 @@ let bookinstance_create_get = function(req, res, next) {
     }
     res.render('bookinstance_form', {
       title: 'Create BookInstance', 
-      book_list: books
+      book_list: books,
+      statuses: statuses
     });
   });
 };
@@ -161,8 +166,39 @@ let bookinstance_delete_post = function(req, res, next) {
   });
 };  
 
-let bookinstance_update_get = function(req, res) {
-  res.send('NOT IMPLEMENTED: BookInstance update GET');
+let bookinstance_update_get = function(req, res, next) {
+  async.parallel({
+    bookinstance: function(callback) {
+      BookInstance.findById(req.params.id).exec(callback);
+    },
+    book: function(callback) {
+      Book.find(callback);
+    },
+  }, function (err, results) {
+    if(err) {
+      return next(err);
+    }
+    if(results.bookinstance === null) {
+      let error = new Error('Bookinstance not found');
+      error.status = 404;
+      return next(error);
+    }
+
+    const selectedStatus = results.bookinstance.status;
+    const bookInstanceStatuses = statuses.map(status => {
+      return {
+        ...status,
+        selected: selectedStatus === status.name
+      };
+    });
+
+    res.render('bookinstance_form', {
+      title: 'Update BookInstance',
+      bookinstance: results.bookinstance,
+      book_list: results.book,
+      statuses: bookInstanceStatuses
+    })
+  })
 };
 
 let bookinstance_update_post = function(req, res) {
