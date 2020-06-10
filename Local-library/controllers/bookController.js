@@ -227,10 +227,10 @@ let book_update_get = function(req, res, next) {
       return next(err);
     }
     
-    for(let all_g_iter = 0; all_g_iter < results.genres.length; all_g_iter++) {
-      for(let book_g_iter = 0; book_g_iter < results.book.genre.length; book_g_iter++) {
-        if(results.genres[all_g_iter]._id.toString() === results.book.genre[book_g_iter]._id.toString()) {
-          results.genres[all_g_iter].checked = 'true';
+    for(let allGenres= 0; allGenres < results.genres.length; allGenres++) {
+      for(let bookGenres = 0; bookGenres < results.book.genre.length; bookGenres++) {
+        if(results.genres[allGenres]._id.toString() === results.book.genre[bookGenres]._id.toString()) {
+          results.genres[allGenres].checked = 'true';
         }
       }
     }
@@ -314,11 +314,11 @@ let book_update_post = [
       return;
     }
     else {
-      Book.findByIdAndUpdate(req.params.id, book, {}, function (err, thebook) {
+      Book.findByIdAndUpdate(req.params.id, book, {}, function (err, theBook) {
         if(err) {
           return next(err);
         }
-        res.redirect(thebook.url);
+        res.redirect(theBook.url);
       });
     }
   }
