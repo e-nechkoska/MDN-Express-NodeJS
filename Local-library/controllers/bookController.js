@@ -151,11 +151,56 @@ let book_create_post = [
 ];
 
 let book_delete_get = function(req, res) {
-  res.send('NOT IMPLEMENTED: Book delete GET');
+  async.parallel({
+    book: function(callback) {
+      Book.findById(req.params.id).exec(callback);
+    },
+    copies: function(callback) {
+      BookInstance.find({'book': req.params.id}).exec(callback);
+    },
+  }, function(err, results) {
+    if(err) {
+      return next(err);
+    }
+    if(results.book == null) {
+      res.redirect('/catalog/books');
+    }
+    res.render('book_delete', {
+      title: 'Delete Book',
+      book: results.book,
+      copies: results.copies
+    });
+  });
 };
 
-let book_delete_post = function(req, res) {
-  res.send('NOT IMPLEMENTED: Book delete POST');
+let book_delete_post = function(req, res, next) {
+  async.parallel({
+    book: function(callback) {
+      Book.findById(req.body.bookid).exec(callback);
+    },
+    copies: function(callback) {
+      BookInstance.find({'book': req.body.bookid}).exec(callback);
+    },
+  }, function(err, results) {
+    if(err) {
+      return next(err);
+    }
+    if(results.copies.length > 0) {
+      res.render('book_delete', {
+        title: 'Delete Book',
+        book: results.book,
+        copies: results.copies
+      });
+      return;
+    } else {
+      Book.findByIdAndRemove(req.body.bookid, function deleteBook(err) {
+        if(err) {
+          return next(err);
+        }
+        res.redirect('/catalog/books');
+      });
+    }
+  });
 };
 
 let book_update_get = function(req, res, next) {
@@ -181,9 +226,10 @@ let book_update_get = function(req, res, next) {
       err.status = 404;
       return next(err);
     }
+    
     for(let all_g_iter = 0; all_g_iter < results.genres.length; all_g_iter++) {
       for(let book_g_iter = 0; book_g_iter < results.book.genre.length; book_g_iter++) {
-        if(results.genres[all_g_iter]._id.toString() == results.book.genre[book_g_iter]._id.toString()) {
+        if(results.genres[all_g_iter]._id.toString() === results.book.genre[book_g_iter]._id.toString()) {
           results.genres[all_g_iter].checked = 'true';
         }
       }
@@ -208,7 +254,7 @@ let book_update_post = [
     next();
   },
 
-  body('title', 'Title muyst not be empty')
+  body('title', 'Title must not be empty')
   .trim()
   .isLength({min: 1}),
 
