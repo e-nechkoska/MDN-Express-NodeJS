@@ -158,13 +158,55 @@ let author_delete_post = function (req, res, next) {
   });
 };
 
-let author_update_get = function (req, res) {
-  res.send('NOT IMPLEMENTED: Author update GET');
+let author_update_get = function (req, res, next) {
+  Author.findById(req.params.id).exec().then(result => {
+    if(result === null) {
+      let error = new Error('Author not found');
+      error.status = 404;
+      return next(error);
+    }
+    res.render('author_form', {
+      title: 'Update Author',
+      author: result
+    })
+  }).catch(error => next(error))
 };
 
-let author_update_post = function (req, res) {
-  res.send('NOT IMPLEMENTED: Author update POSt');
-};
+let author_update_post = [
+  body('first_name', 'First name must not be empty.').trim().isLength({min: 1}),
+  body('family_name', 'Family name must not be empty').trim().isLength({min: 1}),
+  
+  sanitizeBody('first_name').escape(),
+  sanitizeBody('family_name').escape(),
+  sanitizeBody('date_of_birth').escape(),
+  sanitizeBody('date_of_death').escape(),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    let author = new Author({
+      first_name: req.body.first_name,
+      family_name: req.body.family_name,
+      date_of_birth: req.body.date_of_birth,
+      date_of_death: req.body.date_of_death,
+      _id: req.params.id
+    });
+
+    if(!errors.isEmpty()) {
+      Author.find().exec().then(result => {
+        res.render('author_form', {
+          title: 'Update Author',
+          author: result
+        })
+      }).catch(error => next(error));
+    } else {
+      Author.findByIdAndUpdate(req.params.id, author).exec()
+      .then(updatedAuthor => {
+        res.redirect(updatedAuthor.url);
+      }).catch(error => next(error));
+    }
+  }
+];
 
 module.exports = {
   author_list,
