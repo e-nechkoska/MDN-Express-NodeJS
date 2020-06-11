@@ -254,21 +254,10 @@ let book_update_post = [
     next();
   },
 
-  body('title', 'Title must not be empty')
-  .trim()
-  .isLength({min: 1}),
-
-  body('author', 'Author must not be empty')
-  .trim()
-  .isLength({min: 1}),
-
-  body('summary', 'Summary must not be empty')
-  .trim()
-  .isLength({min: 1}),
-
-  body('isbn', 'ISBN must not be empty')
-  .trim()
-  .isLength({min: 1}),
+  body('title', 'Title must not be empty').trim().isLength({min: 1}),
+  body('author', 'Author must not be empty').trim().isLength({min: 1}),
+  body('summary', 'Summary must not be empty').trim().isLength({min: 1}),
+  body('isbn', 'ISBN must not be empty').trim().isLength({min: 1}),
 
   sanitizeBody('title').escape(),
   sanitizeBody('author').escape(),
