@@ -201,9 +201,47 @@ let bookinstance_update_get = function(req, res, next) {
   })
 };
 
-let bookinstance_update_post = function(req, res) {
-  res.send('NOT IMPLEMENTED: BookInstance update POST');
-};
+let bookinstance_update_post = [
+  body('book', 'Book must not be empty').trim().isLength({min: 1}),
+  body('imprint', 'Imprint must not be empty').trim().isLength({min: 1}),
+  body('status', 'Status must not be empty').trim().isLength({min: 1}),
+
+  sanitizeBody('book').escape(),
+  sanitizeBody('imprint').escape(),
+  sanitizeBody('status').escape(),
+  sanitizeBody('due_back').escape(),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+
+    let bookinstance = new BookInstance({
+      book: req.body.book,
+      imprint: req.body.imprint,
+      status: req.body.status,
+      due_back: req.body.due_back,
+      _id: req.params.id
+    });
+
+    if(!errors.isEmpty()) {
+      Book.find({}, 'title').exec().then(books => {
+        res.render('bookinstance_form', {
+          title: 'Update Book',
+          book_list: books,
+          selected_book: bookinstance.book._id, 
+          errors: errors.array(), 
+          bookinstance: bookinstance,
+          statuses: statuses
+        });
+      }).catch(err => next(err));
+      return;
+    } else {
+      BookInstance.findByIdAndUpdate(req.params.id, bookinstance).exec()
+      .then(updatedBookinstance => {
+        res.redirect(updatedBookinstance.url);
+      }).catch(err => next(err));
+    }
+  }
+];
 
 module.exports = {
   bookinstance_list,
