@@ -20,7 +20,7 @@ block content
   else
     p Do you really want to delete this Genre?
 
-    form(method='POST' action='')
+    form(method='POST' action='' autocomplete='off') 
       div.form-group 
         input#genreid.form-control(type='hidden', name='genreid', value=genre._id)
 

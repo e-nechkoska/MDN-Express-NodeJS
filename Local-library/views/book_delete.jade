@@ -19,7 +19,7 @@ block content
   else 
     p Do you really want to delete this Book?
 
-    form(method='POST' action='')
+    form(method='POST' action='' autocomplete='off')
       div.form-group 
         input#bookid.form-control(type='hidden', name='bookid', required='true', value=book._id)
 

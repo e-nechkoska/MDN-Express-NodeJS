@@ -5,7 +5,7 @@ block content
 
   p Do you really want to delete this Bookinstance?
 
-  form(method='POST' action='')
+  form(method='POST' action='' autocomplete='off')
     div.form-group 
       input#bookinstanceid.form-control(type='hidden', name='bookinstanceid', required='true', value=bookinstance._id)
 

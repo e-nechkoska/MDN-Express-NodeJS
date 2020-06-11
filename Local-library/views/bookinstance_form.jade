@@ -3,7 +3,7 @@ extends layout
 block content
   h1=title
 
-  form(method='POST' action='')
+  form(method='POST' action='' autocomplete='off')
     div.form-group
       label(for='book') Book:
       select#book.form-control(type='select' placeholder='Select book' name='book' required='true')
