@@ -4,7 +4,7 @@ block content
   h1 #{title}: #{author.name}
   p= author.lifespan 
   
-  if author_books.length
+  if authorBooksList.length
   
     p #[strong Delete the following books before attempting to delete this author.]
   
@@ -13,7 +13,7 @@ block content
       h4 Books
     
       dl
-      each book in author_books
+      each book in authorBooksList
         dt 
           a(href=book.url) #{book.title}
         dd #{book.summary}
@@ -23,6 +23,6 @@ block content
     
     form(method='POST' action='' autocomplete='off')
       div.form-group
-        input#authorid.form-control(type='hidden',name='authorid', required='true', value=author._id )
+        input#authorId.form-control(type='hidden',name='authorId', required='true', value=author._id )
 
       button.btn.btn-primary(type='submit') Delete

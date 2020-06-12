@@ -9,7 +9,7 @@ block content
 
         h4 Books
         dl
-            each book in author_books
+            each book in authorBooksList
                 dt
                     a(href=book.url) #{book.title}
                 dd #{book.summary}

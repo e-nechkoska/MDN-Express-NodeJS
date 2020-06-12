@@ -18,14 +18,14 @@ router.get('/book/:id', book_controller.book_detail);
 router.get('/books', book_controller.book_list);
 
 // AUTHOR ROUTES
-router.get('/author/create', author_controller.author_create_get);
-router.post('/author/create', author_controller.author_create_post);
-router.get('/author/:id/delete', author_controller.author_delete_get);
-router.post('/author/:id/delete', author_controller.author_delete_post);
-router.get('/author/:id/update', author_controller.author_update_get);
-router.post('/author/:id/update', author_controller.author_update_post);
-router.get('/author/:id', author_controller.author_detail);
-router.get('/authors', author_controller.author_list);
+router.get('/author/create', author_controller.authorCreateGet);
+router.post('/author/create', author_controller.authorCreatePost);
+router.get('/author/:id/delete', author_controller.authorDeleteGet);
+router.post('/author/:id/delete', author_controller.authorDeletePost);
+router.get('/author/:id/update', author_controller.authorUpdateGet);
+router.post('/author/:id/update', author_controller.authorUpdatePost);
+router.get('/author/:id', author_controller.authorDetail);
+router.get('/authors', author_controller.authorList);
 
 // GENRE ROUTES
 router.get('/genre/create', genre_controller.genre_create_get);
