@@ -2,54 +2,65 @@ let Author = require('../models/author');
 let Book = require('../models/book');
 
 let async = require('async');
-const { body, validationResult } = require('express-validator/check');
-const { sanitizeBody } = require('express-validator/filter');
 
-let author_list = function (req, res, next) {
+const { body, validationResult, sanitizeBody } = require('express-validator');
+
+/**
+ * TODOs
+ * 
+ * 1. Use promises instead of callbacks
+ * 2. Create separate controllers for get, create, update, delete actions
+ * 3. Rename variables to cammelCase
+ * 4. Create "services": Move the null check there and reject the promise if needed.
+ * 5. Improve error handling. Create Error classes. Ex. NotFound
+ * 
+ * Read: https://developer.mozilla.org/en-US/docs/Learn/Forms/Sending_and_retrieving_form_data
+*/
+
+let authorList = function (req, res, next) {
   Author.find()
   .populate('author')
   .sort([['family_name', 'ascending']])
-  .exec(function (err, list_authors) {
-    if(err) {
-      return next(err);
-    }
+  .exec()
+  .then(authors => {
     res.render('author_list', {
       title: 'Author List', 
-      author_list: list_authors});
-  });
+      authorList: authors
+    });
+  }).catch(error => next(error));
 };
 
-let author_detail = function (req, res, next) {
-  async.parallel({
-    author: function(callback) {
-      Author.findById(req.params.id)
-      .exec(callback);
-    },
-    author_books: function(callback) {
-      Book.find({'author': req.params.id}, 'title summary')
-      .exec(callback);
-    },
-  }, function(err, results) {
-    if(err) {
-      return next(err);
-    }
-    if(results.author==null) {
+let authorDetail = function (req, res, next) {
+  const authorPromise = Author.findById(req.params.id).exec();
+  const authorBooksPromise = Book.find({'author': req.params.id}, 'title summary').exec();
+  Promise.all([authorPromise, authorBooksPromise])
+  .then((results) => {
+    /**
+     * Results is a list of two objects: author and book.
+     * 
+     * Same as:
+     * const author = results[0];
+     * const book = results[1];
+    */
+    const [author, authorBooks] = results;
+    
+    if(author === null) {
       let err = new Error('Author not found');
       err.status = 404;
       return next(err);
     }
     res.render('author_detail', {
       title: 'Author Detail', 
-      author: results.author, 
-      author_books: results.author_books});
-  });
+      author: author, 
+      authorBooksList: authorBooks});
+  }).catch(error => next(error)); 
 };
 
-let author_create_get = function (req, res) {
+let authorCreateGet = function (req, res) {
   res.render('author_form', { title: 'Create Author' });
 };
 
-let author_create_post = [
+let authorCreatePost = [
   body('first_name')
   .isLength({ min: 1 })
   .trim()
@@ -85,7 +96,6 @@ let author_create_post = [
         title: 'Create Author', 
         author: req.body, 
         errors: errors.array() });
-      return;
     }
     else {
       let author = new Author({
@@ -94,71 +104,55 @@ let author_create_post = [
         date_of_birth: req.body.date_of_birth,
         date_of_death: req.body.date_of_death
       });
-      author.save(function(err) {
-        if(err) {
-          return next(err);
-        }
+      author.save()
+      .then(() => {
         res.redirect(author.url);
-      });
+      }).catch(error => next(error));
     }
   }
 ];
 
-let author_delete_get = function (req, res, next) {
- async.parallel({
-   author: function (callback) {
-     Author.findById(req.params.id).exec(callback)
-   },
-   authors_books: function(callback) {
-     Book.find({'author': req.params.id}).exec(callback)
-   },
- }, function (err, results) {
-  if(err) {
-    return next(err);
-  }
-  if(results.author == null) {
-    res.redirect('/catalog/authors');
-  }
-  res.render('author_delete', {
-    title: 'Delete Author',
-    author: results.author,
-    author_books: results.authors_books
-  });
- });
+let authorDeleteGet = function (req, res, next) {
+  const authorPromise = Author.findById(req.params.id).exec();
+  const authorBooksPromise = Book.find({'author': req.params.id}, 'title summary').exec();
+
+  Promise.all([authorPromise, authorBooksPromise])
+  .then(results => {
+    const [author, authorBooks] = results;
+    if(author == null) {
+      res.redirect('/catalog/authors');
+    }
+    res.render('author_delete', {
+      title: 'Delete Author',
+      author: author,
+      authorBooksList: authorBooks
+    });
+  }).catch(error => next(error));
 };
 
-let author_delete_post = function (req, res, next) {
-  async.parallel({
-    author: function (callback) {
-      Author.findById(req.body.authorid).exec(callback)
-    },
-    authors_books: function (callback) {
-      Book.find({'author' : req.body.authorid}).exec(callback)
-    },
-  }, function (err, results) {
-    if(err) {
-      return next(err);
-    }
-    if(results.authors_books.length > 0) {
+let authorDeletePost = function (req, res, next) {
+  const authorPromise = Author.findById(req.body.authorId).exec();
+  const authorBooksPromise = Book.find({'author': req.body.authorId}).exec();
+
+  Promise.all([authorPromise, authorBooksPromise])
+  .then(results => {
+    const [author, authorBooks] = results;
+    if(authorBooks.length > 0) {
       res.render('author_delete', {
         title: 'Delete Author',
-        author: results.author,
-        author_books: results.authors_books
+        author: author,
+        authorBooksList: authorBooks
       });
-      return;
-    }
-    else {
-      Author.findByIdAndRemove(req.body.authorid, function deleteAuthor(err) {
-        if(err) {
-          return next(err);
-        }
+    } else {
+      Author.findByIdAndRemove(req.body.authorId)
+      .then(() => {
         res.redirect('/catalog/authors');
-      });
+      }).catch(error => next(error));
     }
   });
 };
 
-let author_update_get = function (req, res, next) {
+let authorUpdateGet = function (req, res, next) {
   Author.findById(req.params.id).exec().then(result => {
     if(result === null) {
       let error = new Error('Author not found');
@@ -172,7 +166,7 @@ let author_update_get = function (req, res, next) {
   }).catch(error => next(error))
 };
 
-let author_update_post = [
+let authorUpdatePost = [
   body('first_name', 'First name must not be empty.').trim().isLength({min: 1}),
   body('family_name', 'Family name must not be empty').trim().isLength({min: 1}),
   
@@ -209,12 +203,12 @@ let author_update_post = [
 ];
 
 module.exports = {
-  author_list,
-  author_detail,
-  author_create_get,
-  author_create_post,
-  author_delete_get,
-  author_delete_post,
-  author_update_get,
-  author_update_post
+  authorList,
+  authorDetail,
+  authorCreateGet,
+  authorCreatePost,
+  authorDeleteGet,
+  authorDeletePost,
+  authorUpdateGet,
+  authorUpdatePost
 };
