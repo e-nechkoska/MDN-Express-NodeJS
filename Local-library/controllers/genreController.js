@@ -2,135 +2,117 @@ let Genre = require('../models/genre');
 let Book = require('../models/book');
 
 let async = require('async');
-const validator = require('express-validator');
+const { body, validationResult } = require('express-validator');
 
-let genre_list = function(req, res, next) {
+let genreList = function(req, res, next) {
   Genre.find()
   .sort([['name', 'ascending']])
-  .exec(function (err, list_genres) {
-    if(err) {
-      return next(err);
-    }
-    res.render('genre_list', {title: 'Genre List', genre_list: list_genres});
-  });
+  .exec()
+  .then(genreList => {
+    res.render('genre_list', {
+      title: 'Genre List', 
+      genreList: genreList});
+  }).catch(error => next(error));
 };
 
-let genre_detail = function(req, res, next) {
-  async.parallel({
-    genre: function(callback) {
-      Genre.findById(req.params.id)
-      .exec(callback);
-    },
-    genre_books: function(callback) {
-      Book.find({'genre': req.params.id})
-      .exec(callback);
-    }
-  }, function(err, results) {
-    if (err) {
-      return next(err);
-    }
-    if (results.genre == null) {
-      let err = new Error('Genre not found');
-      err.status = 404;
-      return next(err)
-    }
-    res.render('genre_detail', { title: 'Genre Detail', genre: results.genre, genre_books: results.genre_books });
-  });
-};
+let genreDetail = function(req, res, next) {
+  const genreFindByIdPromise = Genre.findById(req.params.id).exec();
+  const bookFindPromise = Book.find({'genre': req.params.id}).exec();
 
-let genre_create_get = function(req, res) {
-  res.render('genre_form', { title: 'Create Genre'});
-};
-
-let genre_create_post = [
-  validator.body('name', 'Genre name required').trim().isLength({ min:1 }),
-  validator.sanitizeBody('name').escape(),
-  (req, res, next) => {
-    const errors = validator.validationResult(req);
-    let genre = new Genre(
-      { name: req.body.name }
-    );
-
-    if(!errors.isEmpty()) {
-      res.render('genre_form', { title: 'Create Genre', genre: genre, errors: errors.array() });
-      return;
-    } else {
-      Genre.findOne( {'name': req.body.name} )
-      .exec( function(err, found_genre) {
-        if(err) {
-          return next(err);
-        }
-        if(found_genre) {
-          res.redirect(found_genre.url);
-        }
-        else {
-          genre.save(function (err) {
-            if (err) {
-              return next(err);
-            }
-            res.redirect(genre.url);
-          });
-        }
-      });
+  Promise.all([genreFindByIdPromise, bookFindPromise])
+  .then((results) => {
+    [genre, books] = results;
+    if (genre === null) {
+      let error = new Error('Genre not found');
+      error.status = 404;
+      return next(error)
     }
-  }
-];
-
-let genre_delete_get = function(req, res, next) {
-  async.parallel({
-    genre: function(callback) {
-      Genre.findById(req.params.id).exec(callback)
-    },
-    books: function(callback) {
-      Book.find({'genre': req.params.id}).exec(callback)
-    },
-  }, function(err, results) {
-    if(err) {
-      return next(err);
-    }
-    if(results.genre == null) {
-      res.redirect('/catalog/genres')
-    }
-    res.render('genre_delete', {
-      title: 'Delete Genre',
-      genre: results.genre,
-      books: results.books,
+    res.render('genre_detail', { 
+      title: 'Genre Detail', 
+      genre: genre, 
+      genreBooks: books 
     });
   });
 };
 
-let genre_delete_post = function(req, res, next) {
-  async.parallel({
-    genre: function(callback) {
-      Genre.findById(req.body.genreid).exec(callback)
-    },
-    books: function(callback) {
-      Book.find({'genre': req.body.genreid}).exec(callback)
-    },
-  }, function (err, results) {
-    if(err) {
-      return next(err);
-    }
-    if(results.books.length > 0) {
-      res.render('genre_delete', {
-        title: 'Delete Genre',
-        genre: results.genre,
-        books: results.books
-      });
-      return;
-    }
-    else {
-      Genre.findByIdAndRemove(req.body.genreid, function deleteGenre(err) {
-        if(err) {
-          return next(err);
-        }
-        res.redirect('/catalog/genres');
-      });
-    }
-  });
+let genreCreateGet = function(req, res) {
+  res.render('genre_form', { title: 'Create Genre', genre: {} });
 };
 
-let genre_update_get = function(req, res, next) {
+let genreCreatePost = [
+  body('name', 'Genre name required').trim().isLength({ min: 1 }).escape(),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    let genre = new Genre({ 
+      name: req.body.name 
+    });
+
+    if(!errors.isEmpty()) {
+      res.render('genre_form', { 
+        title: 'Create Genre', 
+        genre: genre, 
+        errors: errors.array() 
+      });
+    } else {
+      Genre.findOne( {'name': req.body.name} )
+      .exec()
+      .then(foundGenre => {
+        if(foundGenre) {
+          res.redirect(foundGenre.url);
+        }
+        else {
+          genre.save()
+          .then(() => {
+            res.redirect(genre.url);
+          }).catch(error => next(error));
+        }
+      }).catch(error => next(error));
+    }
+  }
+];
+    
+let genreDeleteGet = function(req, res, next) {
+  const genreFindByIdPromise = Genre.findById(req.params.id).exec();
+  const bookFindPromise = Book.find({'genre': req.params.id}).exec();
+
+  Promise.all([genreFindByIdPromise, bookFindPromise])
+  .then((results) => {
+    [genre, books] = results;
+    if(genre == null) {
+      res.redirect('/catalog/genres')
+    }
+    res.render('genre_delete', {
+      title: 'Delete Genre',
+      genre: genre,
+      books: books,
+    });
+  }).catch(error => next(error));
+};
+
+let genreDeletePost = function(req, res, next) {
+  const genreFindByIdPromise = Genre.findById(req.body.genreid).exec();
+  const bookFindPromise = Book.find({'genre': req.body.genreid}).exec();
+
+  Promise.all([genreFindByIdPromise, bookFindPromise])
+  .then((results) => {
+    [genre, books] = results;
+    if(books.length > 0) {
+      res.render('genre_delete', {
+        title: 'Delete Genre',
+        genre: genre,
+        books: books
+      });
+    } else {
+      Genre.findByIdAndRemove(req.body.genreid).exec()
+      .then(() => {
+        res.redirect('/catalog/genres');
+      }).catch(error => next(error));
+    }
+  }).catch(error => next(error));
+};
+
+let genreUpdateGet = function(req, res, next) {
   Genre.findById(req.params.id).exec().then(genre => {
     if(genre == null) {
       let error = new Error('Genre not found');
@@ -147,21 +129,24 @@ let genre_update_get = function(req, res, next) {
   }).catch(err => next(err));
 }
 
-let genre_update_post = [
-  validator.body('name', 'Genre name must not be empty').trim().isLength({min: 1}),
-  validator.sanitizeBody('name').escape(),
+let genreUpdatePost = [
+  body('name', 'Genre name must not be empty').trim().isLength({min: 1}).escape(),
 
   (req, res, next) => {
-    const errors = validator.validationResult(req);
+    const errors = validationResult(req);
     let genre = new Genre({ 
       name: req.body.name,
       _id: req.params.id
     });
 
     if(!errors.isEmpty()) {
-      res.render('genre_form', { title: 'Update Genre', genre: genre, errors: errors.array() });
+      res.render('genre_form', { 
+        title: 'Update Genre', 
+        genre: genre, 
+        errors: errors.array() });
     } else {
-      Genre.findByIdAndUpdate(req.params.id, genre).exec().then(updatedGenre => {
+      Genre.findByIdAndUpdate(req.params.id, genre).exec()
+      .then(updatedGenre => {
         res.redirect(updatedGenre.url);
       }).catch(error => next(error));
     }
@@ -169,12 +154,12 @@ let genre_update_post = [
 ];
 
 module.exports = {
-  genre_list,
-  genre_detail,
-  genre_create_get,
-  genre_create_post,
-  genre_delete_get,
-  genre_delete_post,
-  genre_update_get,
-  genre_update_post
+  genreList,
+  genreDetail,
+  genreCreateGet,
+  genreCreatePost,
+  genreDeleteGet,
+  genreDeletePost,
+  genreUpdateGet,
+  genreUpdatePost
 };

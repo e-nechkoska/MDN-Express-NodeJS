@@ -1,9 +1,7 @@
 let Author = require('../models/author');
 let Book = require('../models/book');
 
-let async = require('async');
-
-const { body, validationResult, sanitizeBody } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 
 /**
  * TODOs
@@ -57,7 +55,7 @@ let authorDetail = function (req, res, next) {
 };
 
 let authorCreateGet = function (req, res) {
-  res.render('author_form', { title: 'Create Author' });
+  res.render('author_form', { title: 'Create Author', author: {} });
 };
 
 let authorCreatePost = [
@@ -66,27 +64,26 @@ let authorCreatePost = [
   .trim()
   .withMessage('First name must be specified.')
   .isAlphanumeric()
-  .withMessage('First name has non-alphanumeric characters.'),
+  .withMessage('First name has non-alphanumeric characters.')
+  .escape(),
 
   body('family_name')
   .isLength({ min: 1 })
   .trim()
   .withMessage('Family name must be specified.')
   .isAlphanumeric()
-  .withMessage('Family name has non-alphanumeric characters.'),
+  .withMessage('Family name has non-alphanumeric characters.')
+  .escape(),
 
   body('date_of_birth', 'Invalid date of birth')
   .optional({ checkFalsy: true })
-  .isISO8601(),
+  .isISO8601()
+  .escape(),
 
   body('date_of_death', 'Invalid date of death')
   .optional({ checkFalsy: true })
-  .isISO8601(),
-
-  sanitizeBody('first_name').escape(),
-  sanitizeBody('family_name').escape(),
-  sanitizeBody('date_of_birth').toDate(),
-  sanitizeBody('date_of_death').toDate(),
+  .isISO8601()
+  .escape(),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -95,7 +92,8 @@ let authorCreatePost = [
       res.render('author_form', { 
         title: 'Create Author', 
         author: req.body, 
-        errors: errors.array() });
+        errors: errors.array() 
+      });
     }
     else {
       let author = new Author({
@@ -167,13 +165,10 @@ let authorUpdateGet = function (req, res, next) {
 };
 
 let authorUpdatePost = [
-  body('first_name', 'First name must not be empty.').trim().isLength({min: 1}),
-  body('family_name', 'Family name must not be empty').trim().isLength({min: 1}),
-  
-  sanitizeBody('first_name').escape(),
-  sanitizeBody('family_name').escape(),
-  sanitizeBody('date_of_birth').escape(),
-  sanitizeBody('date_of_death').escape(),
+  body('first_name', 'First name must not be empty.').trim().isLength({min: 1}).escape(),
+  body('family_name', 'Family name must not be empty').trim().isLength({min: 1}).escape(),
+  body('date_of_birth').escape(),
+  body('date_of_death').escape(),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -190,8 +185,9 @@ let authorUpdatePost = [
       Author.find().exec().then(result => {
         res.render('author_form', {
           title: 'Update Author',
-          author: result
-        })
+          author: result,
+          errors: errors.array()
+        });
       }).catch(error => next(error));
     } else {
       Author.findByIdAndUpdate(req.params.id, author).exec()
