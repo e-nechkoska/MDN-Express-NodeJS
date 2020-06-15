@@ -4,26 +4,26 @@ let moment = require('moment');
 let Schema = mongoose.Schema;
 
 let AuthorSchema = new Schema({
-  first_name: {
+  firstName: {
     type: String,
     required: true,
     max: 100,
   },
-  family_name: {
+  familyName: {
     type: String,
     required: true,
     max: 100,
   },
-  date_of_birth: Date,
-  date_of_death: Date,
+  dateOfBirth: Date,
+  dateOfDeath: Date,
 });
 
 AuthorSchema.virtual("name").get(function () {
   let fullname = "";
-  if (this.first_name && this.family_name) {
-    fullname = this.family_name + "," + this.first_name;
+  if (this.firstName && this.familyName) {
+    fullname = this.familyName + "," + this.firstName;
   }
-  if (!this.first_name || !this.family_name) {
+  if (!this.firstName || !this.familyName) {
     fullname = "";
   }
 
@@ -31,23 +31,23 @@ AuthorSchema.virtual("name").get(function () {
 });
 
 AuthorSchema.virtual("lifespan").get(function () {
-  if(!this.date_of_birth && this.date_of_death) {
-    return this.date_of_death.getYear();
-  } else if(this.date_of_birth && !this.date_of_death) {
-    return this.date_of_birth.getYear();
-  } else if(!this.date_of_birth && !this.date_of_death) {
+  if(!this.dateOfBirth && this.dateOfDeath) {
+    return this.dateOfDeath.getYear();
+  } else if(this.dateOfBirth && !this.dateOfDeath) {
+    return this.dateOfBirth.getYear();
+  } else if(!this.dateOfBirth && !this.dateOfDeath) {
     return '';
   } else {
-    return this.date_of_death.getYear() - this.date_of_birth.getYear();
+    return this.dateOfDeath.getYear() - this.dateOfBirth.getYear();
   }
 });
 
-AuthorSchema.virtual("date_of_birth_formatted").get(function () {
-  return this.date_of_birth ? moment(this.date_of_birth).format('YYYY-MM-DD') : '';
+AuthorSchema.virtual("dateOfBirthFormatted").get(function () {
+  return this.dateOfBirth ? moment(this.dateOfBirth).format('YYYY-MM-DD') : '';
 });
 
-AuthorSchema.virtual("date_of_death_formatted").get(function () {
-  return this.date_of_death ? moment(this.date_of_death).format('YYYY-MM-DD') : '';
+AuthorSchema.virtual("dateOfDeathFormatted").get(function () {
+  return this.dateOfDeath ? moment(this.dateOfDeath).format('YYYY-MM-DD') : '';
 })
 
 AuthorSchema.virtual("url").get(function () {

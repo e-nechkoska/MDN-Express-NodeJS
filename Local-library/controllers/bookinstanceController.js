@@ -61,7 +61,7 @@ let bookinstanceCreateGet = function(req, res, next) {
 let bookinstanceCreatePost = [
   body('book', 'Book must be specified').trim().isLength({min:1}).escape(),
   body('imprint', 'Imprint must be specified').trim().isLength({min:1}).escape(),
-  body('due_back', 'Invalid date').optional({checkFalsy: true}).isISO8601().escape(),
+  body('dueBack', 'Invalid date').optional({checkFalsy: true}).isISO8601().escape(),
   body('status').trim().escape(),
 
   (req, res, next) => {
@@ -70,7 +70,7 @@ let bookinstanceCreatePost = [
       book: req.body.book,
       imprint: req.body.imprint,
       status: req.body.status,
-      due_back: req.body.due_back
+      dueBack: req.body.dueBack
     });
     if(!errors.isEmpty()) {
       Book.find({}, 'title')
@@ -192,7 +192,7 @@ let bookinstanceUpdatePost = [
   body('book', 'Book must not be empty').trim().isLength({min: 1}).escape(),
   body('imprint', 'Imprint must not be empty').trim().isLength({min: 1}).escape(),
   body('status', 'Status must not be empty').trim().isLength({min: 1}).escape(),
-  body('due_back').escape(),
+  body('dueBack').escape(),
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -201,7 +201,7 @@ let bookinstanceUpdatePost = [
       book: req.body.book,
       imprint: req.body.imprint,
       status: req.body.status,
-      due_back: req.body.due_back,
+      dueBack: req.body.dueBack,
       _id: req.params.id
     });
 

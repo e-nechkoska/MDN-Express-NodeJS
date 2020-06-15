@@ -31,11 +31,13 @@ let bookList = function(req, res, next) {
   .populate('author')
   .exec()
   .then(listBooks => {
+    
     listBooks.sort(function(a, b) {
       let textA = a.title.toUpperCase();
       let textB = b.title.toUpperCase();
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     });
+    console.log(listBooks);
     res.render('book_list', {
       title: 'Book List', 
       bookList: listBooks});

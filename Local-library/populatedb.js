@@ -29,10 +29,10 @@ var genres = []
 var books = []
 var bookinstances = []
 
-function authorCreate(first_name, family_name, d_birth, d_death, cb) {
-  authordetail = {first_name:first_name , family_name: family_name }
-  if (d_birth != false) authordetail.date_of_birth = d_birth
-  if (d_death != false) authordetail.date_of_death = d_death
+function authorCreate(firstName, familyName, dBirth, dDeath, cb) {
+  authordetail = {firstName:firstName , familyName: familyName }
+  if (dBirth != false) authordetail.dateOfBirth = dBirth
+  if (dDeath != false) authordetail.dateOfDeath = dDeath
   
   var author = new Author(authordetail);
        
@@ -83,12 +83,12 @@ function bookCreate(title, summary, isbn, author, genre, cb) {
 }
 
 
-function bookInstanceCreate(book, imprint, due_back, status, cb) {
+function bookInstanceCreate(book, imprint, dueBack, status, cb) {
   bookinstancedetail = { 
     book: book,
     imprint: imprint
   }    
-  if (due_back != false) bookinstancedetail.due_back = due_back
+  if (dueBack != false) bookinstancedetail.dueBack = dueBack
   if (status != false) bookinstancedetail.status = status
     
   var bookinstance = new BookInstance(bookinstancedetail);    

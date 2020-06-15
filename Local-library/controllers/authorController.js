@@ -18,7 +18,7 @@ const { body, validationResult } = require('express-validator');
 let authorList = function (req, res, next) {
   Author.find()
   .populate('author')
-  .sort([['family_name', 'ascending']])
+  .sort([['familyName', 'ascending']])
   .exec()
   .then(authors => {
     res.render('author_list', {
@@ -59,7 +59,7 @@ let authorCreateGet = function (req, res) {
 };
 
 let authorCreatePost = [
-  body('first_name')
+  body('firstName')
   .isLength({ min: 1 })
   .trim()
   .withMessage('First name must be specified.')
@@ -67,7 +67,7 @@ let authorCreatePost = [
   .withMessage('First name has non-alphanumeric characters.')
   .escape(),
 
-  body('family_name')
+  body('familyName')
   .isLength({ min: 1 })
   .trim()
   .withMessage('Family name must be specified.')
@@ -75,12 +75,12 @@ let authorCreatePost = [
   .withMessage('Family name has non-alphanumeric characters.')
   .escape(),
 
-  body('date_of_birth', 'Invalid date of birth')
+  body('dateOfBirth', 'Invalid date of birth')
   .optional({ checkFalsy: true })
   .isISO8601()
   .escape(),
 
-  body('date_of_death', 'Invalid date of death')
+  body('dateOfDeath', 'Invalid date of death')
   .optional({ checkFalsy: true })
   .isISO8601()
   .escape(),
@@ -97,10 +97,10 @@ let authorCreatePost = [
     }
     else {
       let author = new Author({
-        first_name: req.body.first_name,
-        family_name: req.body.family_name,
-        date_of_birth: req.body.date_of_birth,
-        date_of_death: req.body.date_of_death
+        firstName: req.body.firstName,
+        familyName: req.body.familyName,
+        dateOfBirth: req.body.dateOfBirth,
+        dateOfDeath: req.body.dateOfDeath
       });
       author.save()
       .then(() => {
@@ -165,19 +165,19 @@ let authorUpdateGet = function (req, res, next) {
 };
 
 let authorUpdatePost = [
-  body('first_name', 'First name must not be empty.').trim().isLength({min: 1}).escape(),
-  body('family_name', 'Family name must not be empty').trim().isLength({min: 1}).escape(),
-  body('date_of_birth').escape(),
-  body('date_of_death').escape(),
+  body('firstName', 'First name must not be empty.').trim().isLength({min: 1}).escape(),
+  body('familyName', 'Family name must not be empty').trim().isLength({min: 1}).escape(),
+  body('dateOfBirth').escape(),
+  body('dateOfDeath').escape(),
 
   (req, res, next) => {
     const errors = validationResult(req);
 
     let author = new Author({
-      first_name: req.body.first_name,
-      family_name: req.body.family_name,
-      date_of_birth: req.body.date_of_birth,
-      date_of_death: req.body.date_of_death,
+      firstName: req.body.firstName,
+      familyName: req.body.familyName,
+      dateOfBirth: req.body.dateOfBirth,
+      dateOfDeath: req.body.dateOfDeath,
       _id: req.params.id
     });
 

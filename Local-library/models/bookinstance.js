@@ -24,7 +24,7 @@ let BookInstanceSchema = new Schema({
         enum: statusNames,
         default: 'Maintenance', // OR defaultStatus.name
     },
-    due_back: {
+    dueBack: {
         type: Date,
         default: Date.now()
     }
@@ -34,8 +34,8 @@ BookInstanceSchema.virtual('url').get(function () {
     return '/catalog/bookinstance/' + this._id;
 });
 
-BookInstanceSchema.virtual('due_back_formatted').get(function () {
-    return moment(this.due_back).format('YYYY-MM-DD'); //'MMMM Do, YYYY'
+BookInstanceSchema.virtual('dueBackFormatted').get(function () {
+    return moment(this.dueBack).format('YYYY-MM-DD'); //'MMMM Do, YYYY'
 });
 
 let BookInstance = mongoose.model('BookInstance', BookInstanceSchema);
