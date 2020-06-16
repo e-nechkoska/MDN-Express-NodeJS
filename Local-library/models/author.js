@@ -18,7 +18,7 @@ let AuthorSchema = new Schema({
   dateOfDeath: Date,
 });
 
-AuthorSchema.virtual('name').get( function () {
+AuthorSchema.virtual('name').get(function () {
   let fullname = '';
   if (this.firstName && this.familyName) {
     return fullname = this.familyName + ', ' + this.firstName + ' ';
@@ -27,14 +27,18 @@ AuthorSchema.virtual('name').get( function () {
 });
 
 AuthorSchema.virtual('lifespan').get(function () {
-  if(!this.dateOfBirth && this.dateOfDeath) {
-    return ('Died on (' + this.dateOfDeathFormatted + ').');
-  } else if(this.dateOfBirth && !this.dateOfDeath) {
-    return ('Born on (' + this.dateOfBirthFormatted + ').');
-  } else if(!this.dateOfBirth && !this.dateOfDeath) {
-    return 'No dates available.';
-  } else {
-    return ('Died at ' + (this.dateOfDeath.getFullYear() - this.dateOfBirth.getFullYear()) + ' years.');
+  // if(!this.dateOfBirth && this.dateOfDeath) {T
+  //   return ('Died on (' + this.dateOfDeathFormatted + ').');
+  // } else if(this.dateOfBirth && !this.dateOfDeath) {
+  //   return ('Born on (' + this.dateOfBirthFormatted + ').');
+  // } else if(!this.dateOfBirth && !this.dateOfDeath) {
+  //   return 'No dates available.';
+  // } else {
+  //   return ('Died at ' + (this.dateOfDeath.getFullYear() - this.dateOfBirth.getFullYear()) + ' years.');
+  // }
+
+  if (this.dateOfDeath && this.dateOfBirth) {
+    return this.dateOfDeath.getFullYear() - this.dateOfBirth.getFullYear();
   }
 });
 
