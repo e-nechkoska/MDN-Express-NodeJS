@@ -7,6 +7,16 @@ const { body, validationResult } = require('express-validator');
 const checkGenre = require('./checkGenre');
 const bookValidation = require('./bookValidation');
 
+const renderBookForm = (res, book = {author: authors[0]._id}, errors = null) => { // authors are not sorted alphabetically
+  res.render('book_form', {
+    title: 'Create Book', 
+    authors: authors, // where does it get authors and genres values?
+    genres: genres,
+    book: book,
+    errors: errors
+  });
+};
+
 const bookCreateGet = function(req, res, next) {
   const authorFindPromise = Author.find().exec();
   const genreFindPromise = Genre.find().exec();
@@ -15,14 +25,7 @@ const bookCreateGet = function(req, res, next) {
   .then((results) => {
     [authors, genres] = results;
     res.setHeader('Cache-Control', 'no-cache');
-    res.render('book_form', { 
-      title: 'Create Book', 
-      authors: authors, 
-      genres: genres,
-      book: {
-        author: authors[0]._id
-      }
-    });
+    renderBookForm(res);
   }).catch(error => next(error));
 };
 
@@ -49,13 +52,14 @@ const createBookMiddleware = (req, res, next) => {
           genres[i].checked = 'true';
         }
       }
-      res.render('book_form', {
-        title: 'Create Book', 
-        authors: authors, 
-        genres: genres, 
-        book: book,
-        errors: error.array()
-      })
+      renderBookForm(res, req.body, errors.array()); // order of params?
+      // res.render('book_form', {
+      //   title: 'Create Book', 
+      //   authors: authors, 
+      //   genres: genres, 
+      //   book: book,
+      //   errors: errors.array()
+      // });
     }).catch(error => next(error))
   } else {
     book.save()

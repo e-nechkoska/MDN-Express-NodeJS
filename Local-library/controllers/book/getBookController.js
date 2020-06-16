@@ -12,7 +12,8 @@ const bookList = function(req, res, next) {
     });
     res.render('book_list', {
       title: 'Book List', 
-      bookList: listBooks});
+      bookList: listBooks
+    });
   }).catch(error => next(error));
 };
 
