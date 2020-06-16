@@ -1,10 +1,10 @@
 const BookInstance = require('../../models/bookinstance');
 const Book = require('../../models/book');
 
-const { body, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 const statuses = require('../../models/statuses');
 
-const  validateBookinstance = require('./bookinstanceValidation');
+const validateBookinstance = require('./bookinstanceValidation');
 const compareStrings = require('../../utils/compare-strings');
 
 const renderBookinstanceForm = (res, books, bookinstance, errors = null) => {
