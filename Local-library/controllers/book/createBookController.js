@@ -4,7 +4,8 @@ const Genre = require('../../models/genre');
 
 const { body, validationResult } = require('express-validator');
 
-// const { checkGenre } = require('./checkGenre');
+const checkGenre = require('./checkGenre');
+const bookValidation = require('./bookValidation');
 
 const bookCreateGet = function(req, res, next) {
   const authorFindPromise = Author.find().exec();
@@ -23,43 +24,6 @@ const bookCreateGet = function(req, res, next) {
       }
     });
   }).catch(error => next(error));
-};
-
-const validateTitle = body('title', 'Title must not be empty.')
-  .trim()
-  .isLength({min: 1})
-  .escape();
-
-const validateAuthor = body('author', 'Author must not be empty.')
-  .trim()
-  .isLength({min: 1})
-  .escape();
-
-const validateSummary = body('summary', 'Summary must not be empty.')
-  .trim()
-  .isLength({min: 1})
-  .escape();
-
-const validateISBN = body('isbn', 'ISBN must not be empty.')
-  .trim()
-  .isLength({min: 1})
-  .escape();
-
-const bookValidation = [
-  validateTitle,
-  validateAuthor,
-  validateSummary,
-  validateISBN,
-];  
-
-const checkGenre = (req, res, next) => {
-  if(!(req.body.genre instanceof Array)) {
-    if(typeof req.body.genre === 'undefined')
-    req.body.genre = [];
-    else 
-    req.body.genre = new Array(req.body.genre);
-  }
-  next();
 };
 
 const createBookMiddleware = (req, res, next) => {
@@ -108,8 +72,6 @@ const bookCreatePost = [
 ];
 
 module.exports = {
-  checkGenre,
-  bookValidation,
   bookCreateGet,
   bookCreatePost
 };

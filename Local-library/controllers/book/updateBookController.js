@@ -3,7 +3,9 @@ const Author = require('../../models/author');
 const Genre = require('../../models/genre');
 
 const { body, validationResult } = require('express-validator');
-const { checkGenre, bookValidation } = require('../book/createBookController');
+
+const checkGenre = require('./checkGenre');
+const bookValidation = require('./bookValidation');
 
 const bookUpdateGet = function(req, res, next) {
   const bookFindByIdPromise = Book.findById(req.params.id)
