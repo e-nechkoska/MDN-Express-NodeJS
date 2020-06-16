@@ -82,7 +82,6 @@ function bookCreate(title, summary, isbn, author, genre, cb) {
   }  );
 }
 
-
 function bookInstanceCreate(book, imprint, dueBack, status, cb) {
   bookinstancedetail = { 
     book: book,
@@ -205,8 +204,6 @@ function createBookInstances(cb) {
         // Optional callback
         cb);
 }
-
-
 
 async.series([
     createGenreAuthors,

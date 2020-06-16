@@ -1,4 +1,4 @@
-let mongoose = require("mongoose");
+let mongoose = require('mongoose');
 let moment = require('moment');
  
 let Schema = mongoose.Schema;
@@ -18,42 +18,38 @@ let AuthorSchema = new Schema({
   dateOfDeath: Date,
 });
 
-AuthorSchema.virtual("name").get(function () {
-  let fullname = "";
+AuthorSchema.virtual('name').get( function () {
+  let fullname = '';
   if (this.firstName && this.familyName) {
-    fullname = this.familyName + "," + this.firstName;
+    return fullname = this.familyName + ', ' + this.firstName + ' ';
   }
-  if (!this.firstName || !this.familyName) {
-    fullname = "";
-  }
-
-  return fullname;
+  return fullname = '';
 });
 
-AuthorSchema.virtual("lifespan").get(function () {
+AuthorSchema.virtual('lifespan').get(function () {
   if(!this.dateOfBirth && this.dateOfDeath) {
-    return this.dateOfDeath.getYear();
+    return ('Died on (' + this.dateOfDeathFormatted + ').');
   } else if(this.dateOfBirth && !this.dateOfDeath) {
-    return this.dateOfBirth.getYear();
+    return ('Born on (' + this.dateOfBirthFormatted + ').');
   } else if(!this.dateOfBirth && !this.dateOfDeath) {
-    return '';
+    return 'No dates available.';
   } else {
-    return this.dateOfDeath.getYear() - this.dateOfBirth.getYear();
+    return ('Died at ' + (this.dateOfDeath.getFullYear() - this.dateOfBirth.getFullYear()) + ' years.');
   }
 });
 
-AuthorSchema.virtual("dateOfBirthFormatted").get(function () {
+AuthorSchema.virtual('dateOfBirthFormatted').get(function () {
   return this.dateOfBirth ? moment(this.dateOfBirth).format('YYYY-MM-DD') : '';
 });
 
-AuthorSchema.virtual("dateOfDeathFormatted").get(function () {
+AuthorSchema.virtual('dateOfDeathFormatted').get(function () {
   return this.dateOfDeath ? moment(this.dateOfDeath).format('YYYY-MM-DD') : '';
 })
 
-AuthorSchema.virtual("url").get(function () {
-  return "/catalog/author/" + this._id;
+AuthorSchema.virtual('url').get(function () {
+  return '/catalog/author/' + this._id;
 });
 
-let Author = mongoose.model("Author", AuthorSchema);
+let Author = mongoose.model('Author', AuthorSchema);
 
 module.exports = Author;

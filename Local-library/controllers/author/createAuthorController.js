@@ -8,7 +8,7 @@ const renderAuhtorForm = (res, author = {}, errors = null) => {
     author: author,
     errors: errors
   });
-}
+};
 
 const authorCreateGet = function (req, res) {
   renderAuhtorForm(res);

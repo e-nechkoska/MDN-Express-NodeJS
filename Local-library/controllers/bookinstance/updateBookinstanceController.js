@@ -5,6 +5,8 @@ const Book = require('../../models/book');
 const { body, validationResult } = require('express-validator');
 const statuses = require('../../models/statuses');
 
+const validateBookinstance = require('./bookinstanceValidation');
+
 const bookinstanceUpdateGet = function(req, res, next) {
   const bookInstanceFindByIdPromise = BookInstance.findById(req.params.id).exec();
   const bookFindPromise = Book.find().exec();
@@ -35,10 +37,7 @@ const bookinstanceUpdateGet = function(req, res, next) {
 };
 
 const bookinstanceUpdatePost = [
-  body('book', 'Book must not be empty').trim().isLength({min: 1}).escape(),
-  body('imprint', 'Imprint must not be empty').trim().isLength({min: 1}).escape(),
-  body('status', 'Status must not be empty').trim().isLength({min: 1}).escape(),
-  body('dueBack').escape(),
+  validateBookinstance,
 
   (req, res, next) => {
     const errors = validationResult(req);
@@ -52,9 +51,11 @@ const bookinstanceUpdatePost = [
     });
 
     if(!errors.isEmpty()) {
-      Book.find({}, 'title').exec().then(books => {
+      Book.find({}, 'title')
+      .exec()
+      .then(books => {
         res.render('bookinstance_form', {
-          title: 'Update Book',
+          title: 'Update BookInstance',
           bookList: books,
           bookinstance: bookinstance,
           statuses: statuses,
@@ -64,8 +65,9 @@ const bookinstanceUpdatePost = [
     } else {
       BookInstance.findByIdAndUpdate(req.params.id, bookinstance).exec()
       .then(updatedBookinstance => {
+        // console.log(updatedBookinstance);
         res.redirect(updatedBookinstance.url);
-      }).catch(ererrorr => next(error));
+      }).catch(error => next(error));
     }
   }
 ];

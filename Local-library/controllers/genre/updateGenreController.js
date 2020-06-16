@@ -2,6 +2,14 @@ const Genre = require('../../models/genre');
 
 const { body, validationResult } = require('express-validator');
 
+const renderGenreForm = (res, errors = null) => {
+  res.render('genre_form', {
+    title: 'Update Genre',
+    genre: genre,
+    errors: errors 
+  })
+};
+
 const genreUpdateGet = function(req, res, next) {
   Genre.findById(req.params.id).exec().then(genre => {
     if(genre == null) {
@@ -9,13 +17,7 @@ const genreUpdateGet = function(req, res, next) {
       error.status = 404;
       return next(error);
     }
-
-    const templateData = {
-      title: 'Update Genre',
-      genre: genre
-   };
-
-    res.render('genre_form', templateData)
+    renderGenreForm(res);
   }).catch(err => next(err));
 }
 
@@ -30,10 +32,7 @@ const genreUpdatePost = [
     });
 
     if(!errors.isEmpty()) {
-      res.render('genre_form', { 
-        title: 'Update Genre', 
-        genre: genre, 
-        errors: errors.array() });
+      renderGenreForm(res, errors.array());
     } else {
       Genre.findByIdAndUpdate(req.params.id, genre).exec()
       .then(updatedGenre => {

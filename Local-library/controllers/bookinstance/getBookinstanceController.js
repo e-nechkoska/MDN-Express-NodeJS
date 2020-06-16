@@ -11,7 +11,8 @@ const bookinstanceList = function(req, res, next) {
     });
     res.render('bookinstance_list', {
       title: 'Book Instance List', 
-      bookinstanceList: bookinstanceList});
+      bookinstanceList: bookinstanceList
+    });
   }).catch(error => next(error));
 };
 

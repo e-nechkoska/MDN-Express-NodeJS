@@ -8,7 +8,8 @@ const genreList = function(req, res, next) {
   .then(genreList => {
     res.render('genre_list', {
       title: 'Genre List', 
-      genreList: genreList});
+      genreList: genreList
+    });
   }).catch(error => next(error));
 };
 

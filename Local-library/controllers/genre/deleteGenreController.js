@@ -1,6 +1,14 @@
 const Genre = require('../../models/genre');
 const Book = require('../../models/book');
 
+const renderDeleteGenre = (res) => {
+  res.render('genre_delete', {
+    title: 'Delete Genre',
+    genre: genre,
+    books: books,
+  });
+};
+
 const genreDeleteGet = function(req, res, next) {
   const genreFindByIdPromise = Genre.findById(req.params.id).exec();
   const bookFindPromise = Book.find({'genre': req.params.id}).exec();
@@ -11,11 +19,7 @@ const genreDeleteGet = function(req, res, next) {
     if(genre == null) {
       res.redirect('/catalog/genres')
     }
-    res.render('genre_delete', {
-      title: 'Delete Genre',
-      genre: genre,
-      books: books,
-    });
+    renderDeleteGenre(res);
   }).catch(error => next(error));
 };
 
@@ -27,11 +31,7 @@ const genreDeletePost = function(req, res, next) {
   .then((results) => {
     [genre, books] = results;
     if(books.length > 0) {
-      res.render('genre_delete', {
-        title: 'Delete Genre',
-        genre: genre,
-        books: books
-      });
+      renderDeleteGenre(res);
     } else {
       Genre.findByIdAndRemove(req.body.genreid).exec()
       .then(() => {

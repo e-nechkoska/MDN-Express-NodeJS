@@ -4,17 +4,18 @@ const Book = require('../../models/book');
 const { body, validationResult } = require('express-validator');
 const statuses = require('../../models/statuses');
 
+const  validateBookinstance = require('./bookinstanceValidation');
 const compareStrings = require('../../utils/compare-strings');
 
-// const renderBookinstanceForm = (res, bookinstance = { book: books[0]._id }, errors = null) => {
-//   res.render('bookinstance_form', {
-//     title: 'Create BookInstance', 
-//     bookList: books,
-//     statuses: statuses,
-//     bookinstance: bookinstance,
-//     errors: errors
-//   });
-// };
+const renderBookinstanceForm = (res, books, bookinstance, errors = null) => {
+  res.render('bookinstance_form', {
+    title: 'Create BookInstance', 
+    bookList: books,
+    statuses: statuses,
+    bookinstance: bookinstance,
+    errors: errors
+  });
+};
 
 const bookinstanceCreateGet = function(req, res, next) {
   Book.find({}, 'title')
@@ -23,22 +24,11 @@ const bookinstanceCreateGet = function(req, res, next) {
     books.sort(function(a, b) {
       return compareStrings(a.title, b.title);
     });
-    // renderBookinstanceForm(res);
-    res.render('bookinstance_form', {
-      title: 'Create BookInstance', 
-      bookList: books,
-      statuses: statuses,
-      bookinstance: { book: books[0]._id }
-    });
+
+    const bookinstance = { book: books[0]._id };
+    renderBookinstanceForm(res, books, bookinstance);
   }).catch(error => next(error));
 };
-
-const validateBookinstance = [
-  body('book', 'Book must be specified').trim().isLength({min:1}).escape(),
-  body('imprint', 'Imprint must be specified').trim().isLength({min:1}).escape(),
-  body('dueBack', 'Invalid date').optional({checkFalsy: true}).isISO8601().escape(),
-  body('status').trim().escape()
-];
 
 const bookinstanceCreateMiddleware = (req, res, next) => {
   const errors = validationResult(req);
@@ -52,13 +42,7 @@ const bookinstanceCreateMiddleware = (req, res, next) => {
     Book.find({}, 'title')
     .exec()
     .then(books => {
-      // renderBookinstanceForm(res, req.body, errors.array());
-      res.render('bookinstance_form', {
-        title: 'Create BookInstance', 
-        bookList: books, 
-        bookinstance: bookinstance,
-        errors: errors.array()
-      });
+      renderBookinstanceForm(res, books, bookinstance, errors.array());
     }).catch(error => next(error));
   }  else {
     bookinstance.save()

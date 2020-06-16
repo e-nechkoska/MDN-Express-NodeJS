@@ -6,7 +6,7 @@ let Schema = mongoose.Schema;
 const statuses = require("./statuses");
 
 const statusNames = statuses.map(status => status.name);
-const defaultStatus = statuses.find(status => status.selected);
+// const defaultStatus = statuses.find(status => status.selected);
 
 let BookInstanceSchema = new Schema({
     book: {
