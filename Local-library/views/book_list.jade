@@ -4,6 +4,16 @@ block content
 
   h1= title
 
+  form(method='GET' action='' autocomplete='off')
+    div.form-group
+      select#sortMethod.form-control(type='select' placeholder='Sort by:' name='sort' required='true' )
+        option(value='title' selected=(sort === 'title'))
+          | Sort by title
+        option(value='author' selected=(sort === 'author'))
+          | Sort by author
+
+      button.btn.btn-primary(type='submit') Sort
+
   ul
 
       each book in bookList

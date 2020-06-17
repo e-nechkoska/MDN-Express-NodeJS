@@ -3,16 +3,25 @@ const BookInstance = require('../../models/bookinstance');
 const { compareStrings } = require('../../utils');
 
 const bookList = function(req, res, next) {
+  
   Book.find({}, 'title author')
   .populate('author')
   .exec()
   .then(listBooks => {
-    listBooks.sort(function (first, second) {
-      return compareStrings(first.title, second.title);
-    });
+    if(req.query.sort === 'author') {
+      listBooks.sort(function (first, second) {
+        return compareStrings(first.author.familyName, second.author.familyName);
+      });
+    } else {
+      listBooks.sort(function (first, second) {
+        return compareStrings(first.title, second.title);
+      });
+    };   
+   
     res.render('book_list', {
       title: 'Book List', 
-      bookList: listBooks
+      bookList: listBooks,
+      sort: req.query.sort
     });
   }).catch(error => next(error));
 };
@@ -27,7 +36,7 @@ const bookDetail = function(req, res, next) {
 
   Promise.all([bookFindByIdPromise, bookInstanceFindPromise])
   .then((results) => {
-    [book, bookInstances] = results;
+    const [book, bookInstances] = results;
     if(book === null) {
       let error = new Error('Book not found');
       error.status = 404;
