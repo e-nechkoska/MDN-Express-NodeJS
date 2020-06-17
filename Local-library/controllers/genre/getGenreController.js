@@ -19,7 +19,7 @@ const genreDetail = function(req, res, next) {
 
   Promise.all([genreFindByIdPromise, bookFindPromise])
   .then((results) => {
-    [genre, books] = results;
+    const [genre, books] = results;
     if (genre === null) {
       let error = new Error('Genre not found');
       error.status = 404;

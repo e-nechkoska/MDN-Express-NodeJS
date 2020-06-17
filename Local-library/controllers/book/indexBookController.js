@@ -12,7 +12,7 @@ const index = function(req, res, next) {
 
     Promise.all([bookCountPromise, bookInscanceCountPromise, bookInscanceAvailableCountPromise, authorCountPromise, genreCountPromise])
     .then((results) => {
-      [books, bookInstances, availableBookInstances, authors, genres] = results,
+      const [books, bookInstances, availableBookInstances, authors, genres] = results;
       res.render('index', { 
         title: 'Local Library Home', 
         books: books,

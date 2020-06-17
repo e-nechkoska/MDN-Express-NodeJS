@@ -1,7 +1,7 @@
 const Book = require('../../models/book');
 const BookInstance = require('../../models/bookinstance');
 
-const renderBookDelete = (res) => {
+const renderBookDelete = (res, book, bookInstances) => {
   res.render('book_delete', {
     title: 'Delete Book',
     book: book,
@@ -15,11 +15,11 @@ const bookDeleteGet = function(req, res) {
 
   Promise.all([bookFindByIdPromise, bookInstanceFindPromise])
   .then((results) => {
-    [book, bookInstances] = results;
+    const [book, bookInstances] = results;
     if(book === null) {
       res.redirect('/catalog/books');
     } else {
-      renderBookDelete(res);
+      renderBookDelete(res, book, bookInstances);
     }
   }).catch(error => next(error));
 };
@@ -30,9 +30,9 @@ const bookDeletePost = function(req, res, next) {
 
   Promise.all([bookFindByIdPromise, bookInstanceFindPromise])
   .then((results) => {
-    [book, bookInstances] = results;
+    const [book, bookInstances] = results;
     if(bookInstances.length > 0) {
-      renderBookDelete(res);
+      renderBookDelete(res, book, bookInstances);
     } else {
       Book.findByIdAndRemove(req.body.bookid).exec()
       .then(() => {

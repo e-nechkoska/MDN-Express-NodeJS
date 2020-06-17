@@ -1,6 +1,14 @@
 const Author = require('../../models/author');
 const Book = require('../../models/book');
 
+const renderAuthorDelete = (res, author, authorBooks) => {
+  res.render('author_delete', {
+    title: 'Delete Author',
+    author: author,
+    authorBooksList: authorBooks
+  });
+};
+
 const authorDeleteGet = function (req, res, next) {
   const authorPromise = Author.findById(req.params.id).exec();
   const authorBooksPromise = Book.find({'author': req.params.id}, 'title summary').exec();
@@ -11,11 +19,7 @@ const authorDeleteGet = function (req, res, next) {
     if(author == null) {
       res.redirect('/catalog/authors');
     }
-    res.render('author_delete', {
-      title: 'Delete Author',
-      author: author,
-      authorBooksList: authorBooks
-    });
+    renderAuthorDelete(res, author, authorBooks);
   }).catch(error => next(error));
 };
 
@@ -27,11 +31,7 @@ const authorDeletePost = function (req, res, next) {
   .then(results => {
     const [author, authorBooks] = results;
     if(authorBooks.length > 0) {
-      res.render('author_delete', {
-        title: 'Delete Author',
-        author: author,
-        authorBooksList: authorBooks
-      });
+      renderAuthorDelete(res, author, authorBooks);
     } else {
       Author.findByIdAndRemove(req.body.authorId)
       .then(() => {

@@ -46,7 +46,7 @@ const createBookMiddleware = (req, res, next) => {
 
     Promise.all([authorFindPromise, genreFindPromise])
     .then((results) => {
-      [authors, genres] = results;
+      const [authors, genres] = results;
       for(let i = 0; i < genres.length; i++) {
         if(book.genre.indexOf(genres[i]._id) > -1) {
           genres[i].checked = 'true';

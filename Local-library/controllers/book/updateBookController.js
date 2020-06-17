@@ -7,7 +7,7 @@ const { body, validationResult } = require('express-validator');
 const checkGenre = require('./checkGenre');
 const bookValidation = require('./bookValidation');
 
-const renderUpdateBook = (res, errors = null) => {
+const renderUpdateBook = (res, authors, genres, book, errors = null) => {
   res.render('book_form',{
     title: 'Update Book',
     authors: authors,
@@ -27,7 +27,7 @@ const bookUpdateGet = function(req, res, next) {
 
   Promise.all([bookFindByIdPromise, authorFindPromise, genreFindPromise])
   .then((results) => {
-    [book, authors, genres] = results;
+    const [book, authors, genres] = results;
     if(book === null) {
       let error = new Error('Book not found');
       error.status = 404;
@@ -41,7 +41,7 @@ const bookUpdateGet = function(req, res, next) {
         }
       }
     }
-    renderUpdateBook(res);
+    renderUpdateBook(res, authors, genres, book);
     // res.render('book_form',{
     //   title: 'Update Book',
     //   authors: authors,
@@ -70,13 +70,13 @@ const updateBookMiddleware =  (req, res, next) => {
 
     Promise.all([authorFindPromise, genreFindPromise])
     .then((results) => {
-      [authors, genres] = results; 
+      const [authors, genres] = results; 
       for(let i = 0; i < genres.length; i++) {
         if(book.genre.indexOf(genres[i]._id) > -1) {
           genres[i].checked = 'true';
         }
       }
-      renderUpdateBook(res, errors.array());
+      renderUpdateBook(res, authors, genres, book, errors.array());
       // res.render('book_form', {
       //   title: 'Update Book',
       //   authors: authors,

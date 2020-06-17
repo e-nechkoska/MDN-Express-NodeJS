@@ -2,7 +2,9 @@ const BookInstance = require('../../models/bookinstance');
 
 const bookinstanceDeleteGet = function(req, res, next) {
 
-  BookInstance.findById(req.params.id).exec().then(bookInstance => {
+  BookInstance.findById(req.params.id)
+  .exec()
+  .then(bookInstance => {
     if(bookInstance == null) {
       res.redirect('/catalog/bookinstances');
     }
@@ -14,7 +16,8 @@ const bookinstanceDeleteGet = function(req, res, next) {
 };
 
 const bookinstanceDeletePost = function(req, res, next) {
-  BookInstance.findByIdAndRemove(req.body.bookinstanceid).exec()
+  BookInstance.findByIdAndRemove(req.body.bookinstanceid)
+  .exec()
   .then(() => {
     res.redirect('/catalog/bookinstances');
   }).catch(error => next(error));
