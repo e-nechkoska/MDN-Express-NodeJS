@@ -22,7 +22,7 @@ const genreCreatePost = [
         errors: errors.array() 
       });
     } else {
-      Genre.findOne( {'name': req.body.name} )
+      Genre.findOne({'name': req.body.name})
       .exec()
       .then(foundGenre => {
         if(foundGenre) {

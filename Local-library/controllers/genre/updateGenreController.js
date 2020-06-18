@@ -19,7 +19,7 @@ const genreUpdateGet = function(req, res, next) {
     }
     renderGenreForm(res);
   }).catch(err => next(err));
-}
+};
 
 const genreUpdatePost = [
   body('name', 'Genre name must not be empty').trim().isLength({min: 1}).escape(),

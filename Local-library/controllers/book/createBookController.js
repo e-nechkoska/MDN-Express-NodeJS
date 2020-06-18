@@ -1,11 +1,10 @@
 const Book = require('../../models/book');
 const Author = require('../../models/author');
 const Genre = require('../../models/genre');
-
-const { validationResult } = require('express-validator');
-
 const checkGenre = require('./checkGenre');
 const bookValidation = require('./bookValidation');
+
+const { validationResult } = require('express-validator');
 
 const renderBookForm = (res, authors, genres, book, errors = null) => { 
   res.render('book_form', {

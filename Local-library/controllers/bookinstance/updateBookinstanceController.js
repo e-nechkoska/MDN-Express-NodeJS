@@ -1,10 +1,9 @@
 const BookInstance = require('../../models/bookinstance');
 const Book = require('../../models/book');
+const statuses = require('../../models/statuses');
+const validateBookinstance = require('./bookinstanceValidation');
 
 const { validationResult } = require('express-validator');
-const statuses = require('../../models/statuses');
-
-const validateBookinstance = require('./bookinstanceValidation');
 
 const renderBookinstanceForm = (res, bookinstance, books, statuses, errors = null) => {
   res.render('bookinstance_form', {

@@ -1,11 +1,10 @@
 const Book = require('../../models/book');
 const Author = require('../../models/author');
 const Genre = require('../../models/genre');
-
-const { body, validationResult } = require('express-validator');
-
 const checkGenre = require('./checkGenre');
 const bookValidation = require('./bookValidation');
+
+const { body, validationResult } = require('express-validator');
 
 const renderUpdateBook = (res, authors, genres, book, errors = null) => {
   res.render('book_form',{
@@ -15,7 +14,7 @@ const renderUpdateBook = (res, authors, genres, book, errors = null) => {
     book: book,
     errors: errors
   });
-}
+};
 
 const bookUpdateGet = function(req, res, next) {
   const bookFindByIdPromise = Book.findById(req.params.id)
@@ -42,12 +41,6 @@ const bookUpdateGet = function(req, res, next) {
       }
     }
     renderUpdateBook(res, authors, genres, book);
-    // res.render('book_form',{
-    //   title: 'Update Book',
-    //   authors: authors,
-    //   genres: genres,
-    //   book: book
-    // });
   }).catch(error => next(error));
 };
 
@@ -77,13 +70,6 @@ const updateBookMiddleware =  (req, res, next) => {
         }
       }
       renderUpdateBook(res, authors, genres, book, errors.array());
-      // res.render('book_form', {
-      //   title: 'Update Book',
-      //   authors: authors,
-      //   genres: genres,
-      //   book: book,
-      //   errors: errors.array()
-      // });
     }).catch(error => next(error));
   } else {
     Book.findByIdAndUpdate(req.params.id, book, {}).exec()
