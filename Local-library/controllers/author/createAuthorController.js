@@ -1,6 +1,7 @@
 const Author = require('../../models/author');
+const validateAuthor = require('./authorValidation');
 
-const { body, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 
 const renderAuhtorForm = (res, author = {}, errors = null) => {
   res.render('author_form', {
@@ -13,33 +14,6 @@ const renderAuhtorForm = (res, author = {}, errors = null) => {
 const authorCreateGet = function (req, res) {
   renderAuhtorForm(res);
 };
-
-// function validateFirstName(req, res, next) {}
-const validateFirstName = body('firstName')
-  .isLength({ min: 1 })
-  .trim()
-  .withMessage('First name must be specified.')
-  .isAlphanumeric()
-  .withMessage('First name has non-alphanumeric characters.')
-  .escape();
-
-const validateFamilyName = body('familyName')
-  .isLength({ min: 1 })
-  .trim()
-  .withMessage('Family name must be specified.')
-  .isAlphanumeric()
-  .withMessage('Family name has non-alphanumeric characters.')
-  .escape();
-
-const validateDateOfBirth = body('dateOfBirth', 'Invalid date of birth')
-  .optional({ checkFalsy: true })
-  .isISO8601()
-  .escape();
-
-const validateDateOfDeath = body('dateOfDeath', 'Invalid date of death')
-  .optional({ checkFalsy: true })
-  .isISO8601()
-  .escape();
 
 const createAuthor = (body) => {
   return new Author({
@@ -64,10 +38,7 @@ const createAuthorMiddleware = (req, res, next) => {
 };
 
 const authorCreatePost = [
-  validateFirstName,
-  validateFamilyName,
-  validateDateOfBirth,
-  validateDateOfDeath,
+  validateAuthor,
   createAuthorMiddleware
 ];
 

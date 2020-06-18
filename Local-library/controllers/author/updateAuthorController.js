@@ -1,36 +1,26 @@
 const Author = require('../../models/author');
+const validateAuthor = require('./authorValidation');
 
-const { body, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
+
+const renderAuthorUpdate = (res, author, errors = null) => {
+  res.render('author_form', {
+    title: 'Update Author',
+    author: author,
+    errors: errors
+  });
+};
 
 const authorUpdateGet = function (req, res, next) {
-  Author.findById(req.params.id).exec().then(result => {
-    if(result === null) {
+  Author.findById(req.params.id).exec().then(author => {
+    if(author === null) {
       let error = new Error('Author not found');
       error.status = 404;
       return next(error);
     }
-    res.render('author_form', {
-      title: 'Update Author',
-      author: result
-    })
+    renderAuthorUpdate(res, author);
   }).catch(error => next(error))
 };
-
-const validateFirstName =  body('firstName', 'First name must not be empty.')
-  .trim()
-  .isLength({min: 1})
-  .escape();
-
-const validateFamilyName = body('familyName', 'Family name must not be empty')
-  .trim()
-  .isLength({min: 1})
-  .escape();
-
-const validateDateOfBirth = body('dateOfBirth')
-  .escape();
-
-const validateDateOfDeath = body('dateOfDeath')
-  .escape();
 
 const updateAuthorMiddleware = (req, res, next) => {
   const errors = validationResult(req);
@@ -44,12 +34,8 @@ const updateAuthorMiddleware = (req, res, next) => {
   });
 
   if(!errors.isEmpty()) {
-    Author.find().exec().then(result => {
-      res.render('author_form', {
-        title: 'Update Author',
-        author: result,
-        errors: errors.array()
-      });
+    Author.find().exec().then(authors => {
+      renderAuthorUpdate(res, authors, errors.array());
     }).catch(error => next(error));
   } else {
     Author.findByIdAndUpdate(req.params.id, author).exec()
@@ -60,10 +46,7 @@ const updateAuthorMiddleware = (req, res, next) => {
 };
 
 const authorUpdatePost = [
-  validateFirstName,
-  validateFamilyName,
-  validateDateOfBirth,
-  validateDateOfDeath,
+  validateAuthor,
   updateAuthorMiddleware  
 ];
 
