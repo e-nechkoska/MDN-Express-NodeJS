@@ -16,7 +16,7 @@ const authorDeleteGet = function (req, res, next) {
   Promise.all([authorPromise, authorBooksPromise])
   .then(results => {
     const [author, authorBooks] = results;
-    if(author == null) {
+    if(author === null) {
       res.redirect('/catalog/authors');
     }
     renderAuthorDelete(res, author, authorBooks);

@@ -12,7 +12,7 @@ const renderGenreForm = (res, errors = null) => {
 
 const genreUpdateGet = function(req, res, next) {
   Genre.findById(req.params.id).exec().then(genre => {
-    if(genre == null) {
+    if(genre === null) {
       let error = new Error('Genre not found');
       error.status = 404;
       return next(error);

@@ -16,7 +16,7 @@ const genreDeleteGet = function(req, res, next) {
   Promise.all([genreFindByIdPromise, bookFindPromise])
   .then((results) => {
     const [genre, books] = results;
-    if(genre == null) {
+    if(genre === null) {
       res.redirect('/catalog/genres')
     }
     renderDeleteGenre(res, genre, books);

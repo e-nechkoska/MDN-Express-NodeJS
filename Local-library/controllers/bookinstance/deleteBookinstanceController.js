@@ -5,7 +5,7 @@ const bookinstanceDeleteGet = function(req, res, next) {
   BookInstance.findById(req.params.id)
   .exec()
   .then(bookInstance => {
-    if(bookInstance == null) {
+    if(bookInstance === null) {
       res.redirect('/catalog/bookinstances');
     }
     res.render('bookinstance_delete', {
