@@ -3,7 +3,7 @@ const Book = require('../../models/book');
 
 const genreList = function(req, res, next) {
   Genre.find()
-  .sort([['name', 'ascending']])
+  .sort({name: 1})
   .exec()
   .then(genreList => {
     res.render('genre_list', {

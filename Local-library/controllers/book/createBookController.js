@@ -17,7 +17,7 @@ const renderBookForm = (res, authors, genres, book, errors = null) => {
 };
 
 const bookCreateGet = function(req, res, next) {
-  const authorFindPromise = Author.find().sort([['familyName', 'ascending']]).exec();
+  const authorFindPromise = Author.find().sort({familyName: 1}).exec();
   const genreFindPromise = Genre.find().exec();
 
   Promise.all([authorFindPromise, genreFindPromise])

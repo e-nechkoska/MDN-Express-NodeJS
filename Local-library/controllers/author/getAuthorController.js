@@ -16,7 +16,7 @@ let Book = require('../../models/book');
 let authorList = function (req, res, next) {
   Author.find()
   .populate('author')
-  .sort([['familyName', 'ascending']])
+  .sort({familyName: 1})
   .exec()
   .then(authors => {
     res.render('author_list', {
